@@ -7,8 +7,20 @@ from flask import Flask, render_template, request, redirect, url_for
 from werkzeug.utils import secure_filename
 from dotenv import load_dotenv
 load_dotenv()
-from openai import OpenAI
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+AI_PROVIDER   = os.getenv("AI_PROVIDER", "openai")               # openai | huggingface | ollama
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+HF_API_KEY     = os.getenv("HF_API_KEY")
+HF_MODEL       = os.getenv("HF_MODEL", "HuggingFaceTB/SmolLM3-3B")
+OLLAMA_MODEL   = os.getenv("OLLAMA_MODEL", "mistral")
+
+SECRET_KEY     = os.getenv("SECRET_KEY", "change-me-in-.env")   # для Flask-Login
+
+# ⚙️ Подключаем нужного клиента по провайдеру
+if AI_PROVIDER == "openai" and OPENAI_API_KEY:
+    from openai import OpenAI
+    client = OpenAI(api_key=OPENAI_API_KEY)
+else:
+    client = None
 
 from flask_login import (
     LoginManager, login_user, logout_user, login_required, current_user
@@ -441,4 +453,5 @@ if __name__ == "__main__":
     print("OPENAI_API_KEY =", (os.getenv("OPENAI_API_KEY")[:10] + "...") if os.getenv("OPENAI_API_KEY") else None)
 
     app.run(host="0.0.0.0", port=port)
+
 
